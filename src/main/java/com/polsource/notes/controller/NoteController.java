@@ -1,5 +1,6 @@
 package com.polsource.notes.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import com.polsource.notes.domain.Note;
@@ -42,5 +43,25 @@ public class NoteController {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity(newNote, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{title}")
+    public ResponseEntity deleteNotes(@PathVariable String title) {
+        try {
+            this.noteService.deleteNotes(title);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping
+    public List<Note> getAllCurrentNotes() {
+         return noteService.getAllCurrentNotes();
+    }
+
+    @GetMapping("/history/{title}")
+    public List<Note> getNotesHistory(@PathVariable String title) {
+        return noteService.getNotesHistoryByTitle(title);
     }
 }
