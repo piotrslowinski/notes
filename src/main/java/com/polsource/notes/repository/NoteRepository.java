@@ -17,7 +17,7 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     @Query("SELECT n FROM Note n WHERE n.title = :title")
     List<Note> findNotesByTitle(@Param("title") String title);
 
-    @Query("SELECT n from Note n WHERE n.version = (SELECT MAX(nn.version) FROM Note nn WHERE nn.title = :title AND nn.active IS true) ")
+    @Query("SELECT n from Note n WHERE n.version = (SELECT MAX(nn.version) FROM Note nn WHERE nn.title = :title AND nn.active IS true)")
     Optional<Note> findCurrentNoteByTitle(@Param("title") String title);
 
     @Query("SELECT n FROM Note n WHERE n.version = (SELECT MAX(nn.version) FROM Note nn WHERE nn.active IS true)")

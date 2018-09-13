@@ -31,8 +31,8 @@ public class NoteService {
     }
 
     public Note createNote(Note note) {
-        Optional<Note> noteOptional = findCurrentNoteByTitle(note.getTitle());
-        if (noteOptional.isPresent()) {
+        List<Note> notes = findNotesByTitle(note.getTitle());
+        if (!notes.isEmpty()) {
             throw new IllegalArgumentException("the note with such a title already exists");
         } else if (!isFieldValid("title", note.getTitle()) || !isFieldValid("content", note.getContent())) {
             log.debug("field validation error");
@@ -87,7 +87,7 @@ public class NoteService {
     }
 
     private Optional<Note> findCurrentNoteByTitle(String title) {
-        return this.noteRepository.findCurrentNoteByTitle(title);
+        return this.noteFinder.findCurrentNoteByTitle(title);
     }
 
     private boolean isFieldValid(String field, String value) {
@@ -106,5 +106,13 @@ public class NoteService {
     public List<Note> getNotesHistoryByTitle(String title) {
         List<Note> notes = noteFinder.findNotesByTitle(title);
         return notes;
+    }
+
+    public Note getActiveNoteById(Long id) {
+        Optional<Note> noteOptional = this.noteFinder.getActiveNoteById(id);
+        if (!noteOptional.isPresent()) {
+            throw new NoSuchElementException("note with given id doesn't exist");
+        }
+        return noteOptional.get();
     }
 }

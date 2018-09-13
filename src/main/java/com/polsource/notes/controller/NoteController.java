@@ -2,6 +2,7 @@ package com.polsource.notes.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import com.polsource.notes.domain.Note;
 import com.polsource.notes.service.NoteService;
@@ -57,11 +58,23 @@ public class NoteController {
 
     @GetMapping
     public List<Note> getAllCurrentNotes() {
-         return noteService.getAllCurrentNotes();
+        return noteService.getAllCurrentNotes();
     }
 
     @GetMapping("/history/{title}")
     public List<Note> getNotesHistory(@PathVariable String title) {
         return noteService.getNotesHistoryByTitle(title);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Note> getCurrentNoteById(@PathVariable Long id) {
+        Note note = null;
+        try {
+            this.noteService.getActiveNoteById(id);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity(note, HttpStatus.OK);
+    }
+
 }

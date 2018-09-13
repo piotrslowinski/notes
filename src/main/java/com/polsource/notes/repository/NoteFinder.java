@@ -1,7 +1,6 @@
 package com.polsource.notes.repository;
 
 import com.polsource.notes.domain.Note;
-import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,4 +12,6 @@ public interface NoteFinder {
     Optional<Note> findCurrentNoteByTitle(String title);
 
     List<Note> findCurrentNotes();
+
+    Optional<Note> getActiveNoteById(Long id);
 }
