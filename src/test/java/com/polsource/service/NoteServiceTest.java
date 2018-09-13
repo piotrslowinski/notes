@@ -15,7 +15,7 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.Silent.class)
 public class NoteServiceTest {
 
     private NoteService noteService;
@@ -34,7 +34,7 @@ public class NoteServiceTest {
     @Test
     public void shouldAddNewNote() {
         //given
-        when(noteRepository.findByTitle(sampleNote.getTitle())).thenReturn(Optional.empty());
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.empty());
 
         //when
         Note note = this.noteService.createNote(sampleNote);
@@ -47,7 +47,7 @@ public class NoteServiceTest {
     @Test
     public void shouldAssignProperDateWhenAddNewNote() {
         //given
-        when(noteRepository.findByTitle(sampleNote.getTitle())).thenReturn(Optional.empty());
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.empty());
 
         //when
         Note note = this.noteService.createNote(sampleNote);
@@ -59,11 +59,52 @@ public class NoteServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowErrorWhenAddSameTitleNote() {
         //given
-        when(noteRepository.findByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
 
         //when
         Note newNote = new Note("Note 1", "Alternative content");
 
         this.noteService.createNote(newNote);
     }
+
+    @Test
+    public void shouldUpdateNote() {
+        //given
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+
+        //when
+        Note updatedNote = noteService.updateNotes(sampleNote.getTitle(), "New content");
+
+        //then
+        assertEquals("New content", updatedNote.getContent());
+        assertEquals(sampleNote.getTitle(), updatedNote.getTitle());
+    }
+
+    @Test
+    public void shouldIncrementVersionWhenUpdateNote() {
+        //given
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+
+        //when
+        Note updatedOnce = noteService.updateNotes(sampleNote.getTitle(), "Once updated");
+
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(updatedOnce));
+
+        Note updatedTwice = noteService.updateNotes(sampleNote.getTitle(), "Twice updated");
+
+        //then
+        assertEquals(0, sampleNote.getVersion());
+        assertEquals(1, updatedOnce.getVersion());
+        assertEquals(2, updatedTwice.getVersion());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldThrowErrorWhileUpdateNoteWithDifferentTitle() {
+        //given
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+
+        //when
+        noteService.updateNotes("New title", "Once updated");
+    }
+
 }
