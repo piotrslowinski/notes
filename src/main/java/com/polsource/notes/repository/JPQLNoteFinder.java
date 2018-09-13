@@ -28,9 +28,9 @@ public class JPQLNoteFinder implements NoteFinder {
 
     @Override
     public Optional<Note> findCurrentNoteByTitle(String title) {
-        Query query = entityManager.createQuery("SELECT n FROM Note n WHERE n.title = :title AND n.active IS true ORDER BY n.version DESC");
-        query.setParameter("title", title).setMaxResults(1);
-        Note note = (Note) query.getSingleResult();
+        Query query = entityManager.createQuery("SELECT n from Note n WHERE n.version = (SELECT MAX(nn.version) FROM Note nn WHERE nn.title = :title AND nn.active IS true)");
+        query.setParameter("title", title);
+       Note note = (Note)query.getSingleResult();
         return Optional.of(note);
     }
 

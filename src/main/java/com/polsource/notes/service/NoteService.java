@@ -87,7 +87,7 @@ public class NoteService {
     }
 
     private Optional<Note> findCurrentNoteByTitle(String title) {
-        return this.noteFinder.findCurrentNoteByTitle(title);
+        return this.noteRepository.findCurrentNoteByTitle(title);
     }
 
     private boolean isFieldValid(String field, String value) {
