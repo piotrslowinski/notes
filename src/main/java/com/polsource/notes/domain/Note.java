@@ -2,12 +2,10 @@ package com.polsource.notes.domain;
 
 import java.time.LocalDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
-@Entity(name = "notes")
+@Entity
+@Table(name = "notes")
 public class Note {
 
     @Id
@@ -34,9 +32,10 @@ public class Note {
         this.version = 0;
     }
 
-    public Note(String title, String content, int version) {
+    public Note(String title, String content, LocalDate created, int version) {
         this.title = title;
         this.content = content;
+        this.created = created;
         this.modified = LocalDate.now();
         this.version = version;
     }
@@ -82,7 +81,7 @@ public class Note {
     }
 
     public int getVersion() {
-        return version;
+        return this.version;
     }
 
     public void setVersion(int version) {
