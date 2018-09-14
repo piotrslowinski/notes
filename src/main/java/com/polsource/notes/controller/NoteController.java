@@ -1,6 +1,8 @@
 package com.polsource.notes.controller;
 
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import com.polsource.notes.domain.Note;
 import com.polsource.notes.service.NoteService;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/notes")
@@ -43,4 +46,36 @@ public class NoteController {
         }
         return new ResponseEntity(newNote, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{title}")
+    public ResponseEntity deleteNotes(@PathVariable String title) {
+        try {
+            this.noteService.deleteNotes(title);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping
+    public List<Note> getAllCurrentNotes() {
+        return this.noteService.getAllCurrentNotes();
+    }
+
+    @GetMapping("/history/{title}")
+    public List<Note> getNotesHistory(@PathVariable String title) {
+        return this.noteService.getNotesHistoryByTitle(title);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Note> getCurrentNoteById(@PathVariable Long id) {
+        Note note = null;
+        try {
+            note = this.noteService.getActiveNoteById(id);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity(note, HttpStatus.OK);
+    }
+
 }

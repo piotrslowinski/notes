@@ -10,6 +10,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +36,7 @@ public class NoteServiceTest {
     @Test
     public void shouldAddNewNote() {
         //given
-        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.empty());
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Collections.emptyList());
 
         //when
         Note note = this.noteService.createNote(sampleNote);
@@ -47,7 +49,7 @@ public class NoteServiceTest {
     @Test
     public void shouldAssignProperDateWhenAddNewNote() {
         //given
-        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.empty());
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Collections.emptyList());
 
         //when
         Note note = this.noteService.createNote(sampleNote);
@@ -59,7 +61,7 @@ public class NoteServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowErrorWhenAddSameTitleNote() {
         //given
-        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Arrays.asList(sampleNote));
 
         //when
         Note newNote = new Note("Note 1", "Alternative content");

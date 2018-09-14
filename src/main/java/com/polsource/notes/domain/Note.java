@@ -22,6 +22,8 @@ public class Note {
 
     private int version;
 
+    private boolean active;
+
     public Note() {
     }
 
@@ -30,6 +32,7 @@ public class Note {
         this.content = content;
         this.created = LocalDate.now();
         this.version = 0;
+        this.active = true;
     }
 
     public Note(String title, String content, LocalDate created, int version) {
@@ -38,6 +41,7 @@ public class Note {
         this.created = created;
         this.modified = LocalDate.now();
         this.version = version;
+        this.active = true;
     }
 
     public Long getId() {
@@ -86,5 +90,13 @@ public class Note {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public boolean isActive() {
+        return this.active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }
