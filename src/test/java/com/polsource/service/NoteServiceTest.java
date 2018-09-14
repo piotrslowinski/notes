@@ -12,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -107,6 +108,91 @@ public class NoteServiceTest {
 
         //when
         noteService.updateNotes("New title", "Once updated");
+    }
+
+    @Test
+    public void shouldChangeActiveFieldWhenDeleteNote() {
+        //given
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Arrays.asList(sampleNote));
+
+        //when
+        noteService.deleteNotes(sampleNote.getTitle());
+
+        //then
+        assertEquals(false, sampleNote.isActive());
+    }
+
+    @Test
+    public void shouldDeactivateAllVersionsOfNotesWhenDeleteNote() {
+        //given
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        Note updatedOnce = noteService.updateNotes(sampleNote.getTitle(), "Once updated");
+
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(updatedOnce));
+        Note updatedTwice = noteService.updateNotes(sampleNote.getTitle(), "Twice updated");
+
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle()))
+                .thenReturn(Arrays.asList(sampleNote, updatedOnce, updatedTwice));
+
+        //when
+        noteService.deleteNotes(sampleNote.getTitle());
+
+        //then
+        assertEquals(false, sampleNote.isActive());
+        assertEquals(false, updatedOnce.isActive());
+        assertEquals(false, updatedTwice.isActive());
+    }
+
+    @Test
+    public void shouldReturnOnlyActiveNotesWhenSearchCurrentNotes() {
+        //given
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        Note updatedOnce = noteService.updateNotes(sampleNote.getTitle(), "Once updated");
+
+        Note newNote = this.noteService.createNote(new Note("New note", "New Content"));
+
+        when(noteRepository.findCurrentNotes()).thenReturn(Arrays.asList(updatedOnce, newNote));
+
+        //when
+        List<Note> currentNotes = noteService.getAllCurrentNotes();
+
+        //then
+        assertEquals(Arrays.asList(updatedOnce, newNote), currentNotes);
+        assertEquals(true, currentNotes.stream().map(Note::isActive).findFirst().get());
+    }
+
+    @Test
+    public void shouldReturnDeletedNotesHistory() {
+        //given
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        Note updatedOnce = noteService.updateNotes(sampleNote.getTitle(), "Once updated");
+
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(updatedOnce));
+        Note updatedTwice = noteService.updateNotes(sampleNote.getTitle(), "Twice updated");
+
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle()))
+                .thenReturn(Arrays.asList(sampleNote, updatedOnce, updatedTwice));
+
+        noteService.deleteNotes(sampleNote.getTitle());
+
+        //when
+
+        List<Note> notesHistory = noteService.getNotesHistoryByTitle(sampleNote.getTitle());
+        assertEquals(Arrays.asList(sampleNote, updatedOnce, updatedTwice), notesHistory);
+        assertEquals(3, notesHistory.size());
+    }
+
+    @Test
+    public void shouldReturnCurrentNoteById() {
+        //given
+        when(noteRepository.getActiveNoteById(sampleNote.getId())).thenReturn(Optional.of(sampleNote));
+
+        //when
+        Note note = noteService.getActiveNoteById(sampleNote.getId());
+
+        //then
+        assertEquals(note, sampleNote);
+        assertEquals(true, note.isActive());
     }
 
 }

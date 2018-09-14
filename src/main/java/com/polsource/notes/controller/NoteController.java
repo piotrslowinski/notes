@@ -51,7 +51,7 @@ public class NoteController {
     public ResponseEntity deleteNotes(@PathVariable String title) {
         try {
             this.noteService.deleteNotes(title);
-        } catch (IllegalArgumentException e) {
+        } catch (NoSuchElementException e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity(HttpStatus.OK);
