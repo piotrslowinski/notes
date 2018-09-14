@@ -1,7 +1,6 @@
 package com.polsource.service;
 
 import com.polsource.notes.domain.Note;
-import com.polsource.notes.repository.NoteFinder;
 import com.polsource.notes.repository.NoteRepository;
 import com.polsource.notes.service.NoteService;
 import org.junit.Before;
@@ -26,21 +25,18 @@ public class NoteServiceTest {
     @Mock
     private NoteRepository noteRepository;
 
-    @Mock
-    private NoteFinder noteFinder;
-
     private Note sampleNote;
 
     @Before
     public void setUp() {
         sampleNote = new Note("Note 1", "Note 1 content");
-        noteService = new NoteService(noteRepository, noteFinder);
+        noteService = new NoteService(noteRepository);
     }
 
     @Test
     public void shouldAddNewNote() {
         //given
-        when(noteFinder.findNotesByTitle(sampleNote.getTitle())).thenReturn(Collections.emptyList());
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Collections.emptyList());
 
         //when
         Note note = this.noteService.createNote(sampleNote);
@@ -53,7 +49,7 @@ public class NoteServiceTest {
     @Test
     public void shouldAssignProperDateWhenAddNewNote() {
         //given
-        when(noteFinder.findNotesByTitle(sampleNote.getTitle())).thenReturn(Collections.emptyList());
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Collections.emptyList());
 
         //when
         Note note = this.noteService.createNote(sampleNote);
@@ -65,7 +61,7 @@ public class NoteServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowErrorWhenAddSameTitleNote() {
         //given
-        when(noteFinder.findNotesByTitle(sampleNote.getTitle())).thenReturn(Arrays.asList(sampleNote));
+        when(noteRepository.findNotesByTitle(sampleNote.getTitle())).thenReturn(Arrays.asList(sampleNote));
 
         //when
         Note newNote = new Note("Note 1", "Alternative content");
@@ -76,7 +72,7 @@ public class NoteServiceTest {
     @Test
     public void shouldUpdateNote() {
         //given
-        when(noteFinder.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
 
         //when
         Note updatedNote = noteService.updateNotes(sampleNote.getTitle(), "New content");
@@ -89,12 +85,12 @@ public class NoteServiceTest {
     @Test
     public void shouldIncrementVersionWhenUpdateNote() {
         //given
-        when(noteFinder.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
 
         //when
         Note updatedOnce = noteService.updateNotes(sampleNote.getTitle(), "Once updated");
 
-        when(noteFinder.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(updatedOnce));
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(updatedOnce));
 
         Note updatedTwice = noteService.updateNotes(sampleNote.getTitle(), "Twice updated");
 
@@ -107,7 +103,7 @@ public class NoteServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void shouldThrowErrorWhileUpdateNoteWithDifferentTitle() {
         //given
-        when(noteFinder.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
+        when(noteRepository.findCurrentNoteByTitle(sampleNote.getTitle())).thenReturn(Optional.of(sampleNote));
 
         //when
         noteService.updateNotes("New title", "Once updated");

@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.polsource.notes.domain.Note;
-import com.polsource.notes.repository.NoteFinder;
 import com.polsource.notes.repository.NoteRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +21,10 @@ public class NoteService {
     private static final Logger log = LoggerFactory.getLogger(NoteService.class);
 
     private final NoteRepository noteRepository;
-    private final NoteFinder noteFinder;
 
     @Autowired
-    public NoteService(NoteRepository noteRepository, NoteFinder noteFinder) {
+    public NoteService(NoteRepository noteRepository) {
         this.noteRepository = noteRepository;
-        this.noteFinder = noteFinder;
     }
 
     public Note createNote(Note note) {
@@ -83,11 +80,11 @@ public class NoteService {
     }
 
     private List<Note> findNotesByTitle(String title) {
-        return this.noteFinder.findNotesByTitle(title);
+        return this.noteRepository.findNotesByTitle(title);
     }
 
     private Optional<Note> findCurrentNoteByTitle(String title) {
-        return this.noteFinder.findCurrentNoteByTitle(title);
+        return this.noteRepository.findCurrentNoteByTitle(title);
     }
 
     private boolean isFieldValid(String field, String value) {
@@ -99,17 +96,17 @@ public class NoteService {
 
 
     public List<Note> getAllCurrentNotes() {
-        List<Note> notes = noteFinder.findCurrentNotes();
+        List<Note> notes = this.noteRepository.findCurrentNotes();
         return notes.stream().filter(Note::isActive).collect(Collectors.toList());
     }
 
     public List<Note> getNotesHistoryByTitle(String title) {
-        List<Note> notes = noteFinder.findNotesByTitle(title);
+        List<Note> notes = this.noteRepository.findNotesByTitle(title);
         return notes;
     }
 
     public Note getActiveNoteById(Long id) {
-        Optional<Note> noteOptional = this.noteFinder.getActiveNoteById(id);
+        Optional<Note> noteOptional = this.noteRepository.getActiveNoteById(id);
         if (!noteOptional.isPresent()) {
             throw new NoSuchElementException("note with given id doesn't exist");
         }

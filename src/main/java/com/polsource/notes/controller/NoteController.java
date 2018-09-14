@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/notes")
 public class NoteController {
@@ -58,21 +59,21 @@ public class NoteController {
 
     @GetMapping
     public List<Note> getAllCurrentNotes() {
-        return noteService.getAllCurrentNotes();
+        return this.noteService.getAllCurrentNotes();
     }
 
     @GetMapping("/history/{title}")
     public List<Note> getNotesHistory(@PathVariable String title) {
-        return noteService.getNotesHistoryByTitle(title);
+        return this.noteService.getNotesHistoryByTitle(title);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Note> getCurrentNoteById(@PathVariable Long id) {
         Note note = null;
         try {
-            this.noteService.getActiveNoteById(id);
+            note = this.noteService.getActiveNoteById(id);
         } catch (NoSuchElementException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NO_CONTENT);
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity(note, HttpStatus.OK);
     }
